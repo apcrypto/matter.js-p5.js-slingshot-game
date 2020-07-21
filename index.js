@@ -11,11 +11,14 @@ var boxes = [];
 var slingshot;
 var ballImg;
 var boxImg;
+var birdImg;
+var x, y;
 
 function preload() {
   ballImg = loadImage("./assets/ball.png");
-  boxImg = loadImage("./assets/box.jpeg");
+  boxImg = loadImage("./assets/box.png");
   slingImg = loadImage("./assets/slingshot.png");
+  birdImg = loadImage("./assets/bird.png");
 }
 
 function setup() {
@@ -23,9 +26,12 @@ function setup() {
   canvas = createCanvas(600, 400);
   engine = Engine.create();
   world = engine.world;
+  x = width;
+  y = height / 5;
+
   ground = new Ground(width / 2, height - 10, width, 20);
   for (var i = 0; i < 4; i++) {
-    boxes[i] = new Box(500, 300 - i * 75, 60, 60);
+    boxes[i] = new Box(500, 300 - i * 75, 60, 60, { friction: 1 });
   }
   ball = new Ball(150, 300, 20);
   slingshot = new SlingShot(150, 290, ball.body);
@@ -53,17 +59,6 @@ function mouseReleased() {
 
 function draw() {
   background(118, 199, 232);
-  Matter.Engine.update(engine);
-  ground.show();
-  for (let box of boxes) {
-    box.show();
-  }
-
-  image(slingImg, 140, 240, 80, 180);
-
-  slingshot.show();
-  ball.show();
-
   // yellow circle for sun
   push();
   noStroke();
@@ -86,6 +81,30 @@ function draw() {
   circle(140, 70, 30, 30);
   rect(100, 90, 80, 40);
   pop();
+
+  Matter.Engine.update(engine);
+  ground.show();
+  for (let box of boxes) {
+    box.show();
+  }
+
+  image(slingImg, 140, 240, 80, 180);
+
+  slingshot.show();
+  ball.show();
+
+  // Draw bird
+  image(birdImg, x, y, 40, 40);
+
+  // Jiggling randomly on the vertical axis
+  y = y + random(-1, 1);
+  // Moving left at a constant speed
+  x = x - 1;
+
+  // Reset to the bottom
+  if (x < 0) {
+    x = width;
+  }
 }
 
 class Ground {
