@@ -6,12 +6,14 @@ var Bodies = Matter.Bodies;
 var Mouse = Matter.Mouse;
 var Constraint = Matter.Constraint;
 var MouseConstraint = Matter.MouseConstraint;
+var Events = Matter.Events;
 var ball;
 var boxes = [];
 var slingshot;
 var ballImg;
 var boxImg;
 var birdImg;
+var collisions;
 var x, y;
 
 function preload() {
@@ -29,9 +31,19 @@ function setup() {
   x = width;
   y = height / 5;
 
+  Events.on(engine, "collisionStart", function (event) {
+    var pairs = event.pairs;
+    console.log(pairs[0]);
+
+    // if (pairs[0].bodyB.label == "brick") {
+    //   var id = pairs[0].bodyB.id;
+    //   var brickIndex = stack.bodies.findIndex((x) => x.id == id);
+    // }
+  });
+
   ground = new Ground(width / 2, height - 10, width, 20);
-  for (var i = 0; i < 4; i++) {
-    boxes[i] = new Box(500, 300 - i * 75, 60, 60, { friction: 1 });
+  for (var i = 0; i < 3; i++) {
+    boxes[i] = new Box(500, 300 - i * 75, 60, 60);
   }
   ball = new Ball(150, 300, 20);
   slingshot = new SlingShot(150, 290, ball.body);
@@ -133,11 +145,16 @@ class Ground {
 
 class Box {
   constructor(x, y, w, h) {
+    var boxParams = {
+      label: "box",
+      friction: 1,
+    };
+
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
-    this.body = Matter.Bodies.rectangle(x, y, w, h);
+    this.body = Matter.Bodies.rectangle(x, y, w, h, boxParams);
     Matter.World.add(world, this.body);
   }
   show() {
@@ -146,7 +163,7 @@ class Box {
     push();
     translate(pos.x, pos.y);
     fill(255);
-    rectMode(CENTER);
+    // rectMode(CENTER);
     imageMode(CENTER);
     rotate(angle);
     image(boxImg, 0, 0, this.w, this.h);
